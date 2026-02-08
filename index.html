@@ -8,7 +8,7 @@
         :root { --primary: #2c3e50; --accent: #e74c3c; --success: #27ae60; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
         
-        /* Contenedor de entrada de datos (No se imprime) */
+        /* Panel de Control (No se imprime) */
         .no-print { 
             background: white; max-width: 650px; margin: 0 auto 30px; 
             padding: 25px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
@@ -17,42 +17,39 @@
         .full-width { grid-column: span 2; }
         label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; color: #666; }
         input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
-        input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 5px rgba(44,62,80,0.2); }
         
         button { 
             background: var(--success); color: white; border: none; padding: 15px; 
             width: 100%; font-size: 16px; font-weight: bold; border-radius: 6px; 
             cursor: pointer; margin-top: 20px; transition: 0.2s;
         }
-        button:hover { background: #219150; transform: translateY(-1px); }
+        button:hover { background: #219150; }
 
-        /* Estructura del Recibo Real */
+        /* Estructura del Recibo */
         #recibo-final { 
             background: white; width: 100%; max-width: 800px; margin: auto; 
             padding: 50px; border: 1px solid #eee; min-height: 500px;
             box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative;
         }
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 30px; }
-        .logo { width: 200px; height: auto; }
+        .logo { width: 220px; height: auto; }
         .titulo-derecha { text-align: right; }
         
         .cuerpo-texto { font-size: 1.2em; line-height: 1.8; margin: 40px 0; }
-        .campo-relleno { font-weight: bold; text-decoration: underline; color: #000; }
+        .campo-relleno { font-weight: bold; border-bottom: 1px solid #000; padding: 0 5px; }
 
         .tabla-pagos { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 1.1em; }
         .tabla-pagos td { padding: 12px; border: 1px solid #f0f0f0; }
-        .fila-destacada { background: #fdf2f2; font-weight: bold; color: var(--accent); }
+        .fila-destacada { background: #fff5f5; font-weight: bold; color: var(--accent); }
 
         .footer-recibo { margin-top: 60px; display: flex; justify-content: flex-end; }
         .firma-box { text-align: center; width: 250px; }
-        .firma-img { width: 180px; height: auto; display: block; margin: 0 auto -10px; }
+        .firma-img { width: 200px; height: auto; display: block; margin: 0 auto -10px; position: relative; z-index: 10; }
 
-        /* CONFIGURACIÓN DE IMPRESIÓN */
         @media print {
             .no-print { display: none !important; }
             body { background: white; padding: 0; }
             #recibo-final { border: none; box-shadow: none; width: 100%; padding: 20px; }
-            button { display: none; }
         }
     </style>
 </head>
@@ -63,11 +60,11 @@
     <div class="form-grid">
         <div class="full-width">
             <label>Nombre del Cliente</label>
-            <input type="text" id="in-cliente" placeholder="Ej: Juan Pérez" oninput="actualizar()">
+            <input type="text" id="in-cliente" oninput="actualizar()">
         </div>
         <div>
             <label>Presupuesto N°</label>
-            <input type="text" id="in-nro" placeholder="0012" oninput="actualizar()">
+            <input type="text" id="in-nro" oninput="actualizar()">
         </div>
         <div>
             <label>Fecha</label>
@@ -75,19 +72,19 @@
         </div>
         <div>
             <label>Total del Trabajo ($)</label>
-            <input type="number" id="in-total" placeholder="50000" oninput="actualizar()">
+            <input type="number" id="in-total" oninput="actualizar()">
         </div>
         <div>
-            <label>Monto que entrega HOY ($)</label>
-            <input type="number" id="in-pago" placeholder="20000" oninput="actualizar()">
+            <label>Monto que abona hoy ($)</label>
+            <input type="number" id="in-pago" oninput="actualizar()">
         </div>
     </div>
-    <button onclick="window.print()">GENERAR COMPROBANTE (PDF)</button>
+    <button onclick="window.print()">IMPRIMIR / GUARDAR PDF</button>
 </div>
 
 <div id="recibo-final">
     <div class="header">
-        <img src="mhe.png" class="logo" alt="MHE Full Services" onerror="this.src='https://via.placeholder.com/200x80?text=MHE+LOGO'">
+        <img src="https://raw.githubusercontent.com/escuelitacelina2026/ReciboMHE/main/mhe.png" class="logo" alt="Logo MHE">
         <div class="titulo-derecha">
             <h1 style="margin:0; font-size: 2.5em; color: #2c3e50;">RECIBO</h1>
             <p style="margin:5px 0; color: #666;">Fecha: <span id="out-fecha">--/--/----</span></p>
@@ -97,41 +94,40 @@
     <div class="cuerpo-texto">
         He recibido del Sr./Sra. <span class="campo-relleno" id="out-cliente">____________________</span> 
         la suma de <strong style="font-size: 1.2em;">$<span id="out-monto">0.00</span></strong> 
-        en concepto de pago por los servicios detallados en el 
+        en concepto de pago por los servicios del 
         <strong>Presupuesto N° <span id="out-nro">____</span></strong>.
     </div>
 
     <table class="tabla-pagos">
         <tr>
-            <td>Valor Total del Servicio:</td>
+            <td>Valor Total del Trabajo:</td>
             <td style="text-align: right;">$<span id="out-total">0.00</span></td>
         </tr>
         <tr>
-            <td style="color: var(--success); font-weight: bold;">Monto Abonado en esta fecha:</td>
+            <td style="color: var(--success); font-weight: bold;">Monto Abonado hoy:</td>
             <td style="text-align: right; font-weight: bold;">$<span id="out-pago">0.00</span></td>
         </tr>
         <tr class="fila-destacada">
-            <td>SALDO RESTANTE PENDIENTE:</td>
+            <td>SALDO PENDIENTE:</td>
             <td style="text-align: right;">$<span id="out-restante">0.00</span></td>
         </tr>
     </table>
 
     <div class="footer-recibo">
         <div class="firma-box">
-            <img src="firma.png" class="firma-img" alt="Firma" onerror="this.style.opacity='0';">
-            <p style="border-top: 1px solid #000; padding-top: 10px; font-weight: bold;">MHE Full Services</p>
+            <img src="https://raw.githubusercontent.com/escuelitacelina2026/ReciboMHE/main/firma.png" class="firma-img" alt="Firma MHE">
+            <p style="border-top: 1px solid #000; padding-top: 10px; font-weight: bold; position: relative; background: white;">MHE Full Services</p>
         </div>
     </div>
 </div>
 
 <script>
-    // Establecer fecha de hoy por defecto
-    const hoy = new Date().toISOString().split('T')[0];
-    document.getElementById('in-fecha').value = hoy;
-    document.getElementById('out-fecha').innerText = new Date().toLocaleDateString();
+    // Fecha automática
+    const d = new Date();
+    document.getElementById('in-fecha').value = d.toISOString().split('T')[0];
+    document.getElementById('out-fecha').innerText = d.toLocaleDateString();
 
     function actualizar() {
-        // Obtener valores
         const cliente = document.getElementById('in-cliente').value;
         const nro = document.getElementById('in-nro').value;
         const fechaVal = document.getElementById('in-fecha').value;
@@ -139,13 +135,11 @@
         const pago = parseFloat(document.getElementById('in-pago').value) || 0;
         const restante = total - pago;
 
-        // Formatear fecha
         if(fechaVal) {
             const f = fechaVal.split('-');
             document.getElementById('out-fecha').innerText = `${f[2]}/${f[1]}/${f[0]}`;
         }
 
-        // Volcar a la vista
         document.getElementById('out-cliente').innerText = cliente || "____________________";
         document.getElementById('out-nro').innerText = nro || "____";
         document.getElementById('out-monto').innerText = pago.toLocaleString('es-AR');
