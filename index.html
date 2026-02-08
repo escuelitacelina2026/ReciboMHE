@@ -3,47 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Recibo</title>
-    <link rel="stylesheet" href="style-recibo.css">
+    <title>Generador de Recibo - MHE</title>
+    <style>
+        :root { --primary: #2c3e50; --accent: #e74c3c; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; }
+        .card { background: white; max-width: 600px; margin: auto; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .logo { width: 120px; margin-bottom: 20px; }
+        h2 { color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        .resumen-pagos { background: #f9f9f9; padding: 15px; border-left: 4px solid var(--accent); margin: 20px 0; }
+        .btn-generar { background: #27ae60; color: white; border: none; padding: 15px; width: 100%; font-size: 16px; border-radius: 5px; cursor: pointer; transition: 0.3s; }
+        .btn-generar:hover { background: #219150; }
+        @media print { .btn-generar, input, select, label { display: none; } .card { box-shadow: none; border: none; } .solo-print { display: block !important; } }
+        .solo-print { display: none; font-size: 1.1em; line-height: 1.8; }
+    </style>
 </head>
 <body>
 
-    <div class="contenedor-recibo">
-        <header>
-            <h1>RECIBO DE PAGO</h1>
-            <div class="info-nro">
-                <p>N°: <span id="nro-recibo">0001</span></p>
-                <p>Fecha: <input type="date" id="fecha-recibo"></p>
-            </div>
-        </header>
+<div class="card" id="recibo-container">
+    <img src="mhe.png" alt="Logo MHE" class="logo">
+    <h2>Control de Pago</h2>
 
-        <section class="cuerpo-recibo">
-            <div class="fila">
-                <label>Recibí de:</label>
-                <input type="text" id="cliente" placeholder="Nombre del cliente">
-            </div>
-
-            <div class="fila">
-                <label>La cantidad de:</label>
-                <input type="text" id="monto-letras" placeholder="Monto en letras">
-                <span class="simbolo-moneda">$</span>
-                <input type="number" id="monto-numero" placeholder="0.00">
-            </div>
-
-            <div class="fila">
-                <label>En concepto de:</label>
-                <textarea id="concepto" rows="2" placeholder="Descripción del pago..."></textarea>
-            </div>
-        </section>
-
-        <footer>
-            <div class="firma">
-                <hr>
-                <p>Firma y Aclaración</p>
-            </div>
-            <button id="btn-imprimir" onclick="window.print()">Imprimir Recibo</button>
-        </footer>
+    <div class="form-group">
+        <label>Presupuesto N°</label>
+        <input type="text" id="nro-presu" placeholder="Ej: 0045">
     </div>
+
+    <div class="form-group">
+        <label>Cliente</label>
+        <input type="text" id="cliente" placeholder="Nombre del cliente">
+    </div>
+
+    <div class="form-group">
+        <label>Monto Total del Trabajo ($)</label>
+        <input type="number" id="total-trabajo" oninput="calcularRestante()">
+    </div>
+
+    <div class="form-group">
+        <label>Monto que entrega ahora ($)</label>
+        <input type="number" id="pago-actual" oninput="calcularRestante()">
+    </div>
+
+    <div class="resumen-pagos">
+        <p><strong>Total abonado hasta hoy:</strong> $<span id="total-abonado">0</span></p>
+        <p style="color: var(--accent);"><strong>Saldo pendiente:</strong> $<span id="saldo-pendiente">0</span></p>
+    </div>
+
+    <button class="btn-generar" onclick="generarRecibo()">GENERAR RECIBO PARA IMPRIMIR / PDF</button>
+
+    <div id="area-recibo" class="solo-print">
+        <p>Buenos Aires, <span id="fecha-actual"></span></p>
+        <p>He recibido del Sr./Sra. <strong id="print-cliente"></strong> la cantidad de 
+           <strong>$<span id="print-monto"></span></strong> en concepto de pago (total/parcial) 
+           por el trabajo realizado bajo el <strong>Presupuesto N° <span id="print-nro"></span></strong>.</p>
+        
+        <p>Detalle del estado de cuenta:</p>
+        <ul>
+            <li>Valor Total del Trabajo: $<span id="print-total"></span></li>
+            <li>Monto entregado en esta fecha: $<span id="print-pago"></span></li>
+            <li><strong>Saldo Restante a abonar: $<span id="print-restante"></span></strong></li>
+        </ul>
+
+        <div style="margin-top: 50px; text-align: center;">
+            <img src="firma.png" style="width: 150px;"><br>
+            <span>__________________________</span><br>
+            <span>Firma MHE Full Services</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    function calcularRestante() {
+        const total = parseFloat(document.getElementById('total-trabajo').value) || 0;
+        const pago = parseFloat(document.getElementById('pago-actual').value) || 0;
+        
+        const restante = total - pago;
+        
+        document.getElementById('total-abonado').innerText = pago;
+        document.getElementById('saldo-pendiente').innerText = restante;
+    }
+
+    function generarRecibo() {
+        // Llenar los datos para la impresión
+        document.getElementById('print-cliente').innerText = document.getElementById('cliente').value;
+        document.getElementById('print-nro').innerText = document.getElementById('nro-presu').value;
+        document.getElementById('print-monto').innerText = document.getElementById('pago-actual').value;
+        document.getElementById('print-total').innerText = document.getElementById('total-trabajo').value;
+        document.getElementById('print-pago').innerText = document.getElementById('pago-actual').value;
+        document.getElementById('print-restante').innerText = document.getElementById('saldo-pendiente').innerText;
+        
+        const hoy = new Date();
+        document.getElementById('fecha-actual').innerText = hoy.toLocaleDateString();
+
+        // Disparar la impresión (que permite guardar como PDF)
+        window.print();
+    }
+</script>
 
 </body>
 </html>
