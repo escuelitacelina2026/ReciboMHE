@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Recibo</title>
+    <link rel="stylesheet" href="style-recibo.css">
+</head>
+<body>
+
+    <div class="contenedor-recibo">
+        <header>
+            <h1>RECIBO DE PAGO</h1>
+            <div class="info-nro">
+                <p>N°: <span id="nro-recibo">0001</span></p>
+                <p>Fecha: <input type="date" id="fecha-recibo"></p>
+            </div>
+        </header>
+
+        <section class="cuerpo-recibo">
+            <div class="fila">
+                <label>Recibí de:</label>
+                <input type="text" id="cliente" placeholder="Nombre del cliente">
+            </div>
+
+            <div class="fila">
+                <label>La cantidad de:</label>
+                <input type="text" id="monto-letras" placeholder="Monto en letras">
+                <span class="simbolo-moneda">$</span>
+                <input type="number" id="monto-numero" placeholder="0.00">
+            </div>
+
+            <div class="fila">
+                <label>En concepto de:</label>
+                <textarea id="concepto" rows="2" placeholder="Descripción del pago..."></textarea>
+            </div>
+        </section>
+
+        <footer>
+            <div class="firma">
+                <hr>
+                <p>Firma y Aclaración</p>
+            </div>
+            <button id="btn-imprimir" onclick="window.print()">Imprimir Recibo</button>
+        </footer>
+    </div>
+
+</body>
+</html>
