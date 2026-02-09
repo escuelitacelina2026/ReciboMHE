@@ -5,53 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recibo Oficial - MHE Full Services</title>
     <style>
-        :root { --primary: #2c3e50; --success: #27ae60; --danger: #e74c3c; }
+        :root { --primary: #2c3e50; --success: #27ae60; --danger: #d32f2f; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
         
-        /* Panel de entrada - No se imprime */
         .no-print { 
             background: white; max-width: 600px; margin: 0 auto 20px; 
             padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
         }
-        .no-print h2 { margin-top: 0; color: var(--primary); font-size: 1.2em; }
         input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
         button { 
             background: var(--success); color: white; border: none; padding: 15px; 
             width: 100%; font-size: 16px; font-weight: bold; border-radius: 5px; 
-            cursor: pointer; transition: 0.3s; margin-top: 10px;
+            cursor: pointer; width: 100%;
         }
-        button:hover { background: #219150; }
 
-        /* Estructura del Recibo */
         #recibo-final { 
             background: white; width: 100%; max-width: 750px; margin: auto; 
             padding: 50px; border: 1px solid #eee; min-height: 500px;
-            position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            position: relative; overflow: hidden;
         }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; }
-        .logo { width: 200px; height: auto; }
+        
+        /* SELLO "PAGADO" POSICIONADO SOBRE EL TÍTULO */
+        .sello-pagado {
+            position: absolute;
+            top: 25px; /* Ajustado para estar arriba de 'RECIBO' */
+            right: 60px;
+            color: var(--danger);
+            border: 4px solid var(--danger);
+            font-size: 24px;
+            font-weight: 900;
+            padding: 5px 15px;
+            text-transform: uppercase;
+            transform: rotate(-10deg);
+            opacity: 0.7; /* Efecto de tinta real */
+            border-radius: 5px;
+            font-family: 'Arial Black', sans-serif;
+            z-index: 100;
+            display: none;
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; position: relative; }
+        .logo { width: 200px; }
         
         .cuerpo { margin: 50px 0; font-size: 1.3em; line-height: 1.8; }
-        .linea-dato { font-weight: bold; border-bottom: 1px solid #000; padding: 0 5px; }
+        .linea-dato { font-weight: bold; border-bottom: 1px solid #000; }
 
         .tabla-resumen { width: 100%; border-collapse: collapse; margin-top: 30px; font-size: 1.2em; }
         .tabla-resumen td { padding: 15px; border: 1px solid #f8f9fa; }
-        .total-pendiente { background: #fff5f5; font-weight: bold; color: var(--danger); border: 1px solid #ffe3e3 !important; }
+        .total-pendiente { background: #fff5f5; font-weight: bold; color: var(--danger); }
 
-        /* Espacio de Firma Simplificado */
-        .firma-area { margin-top: 80px; float: right; text-align: center; width: 300px; }
-        .sello-texto { 
-            font-size: 1.4em; 
-            font-weight: 800; 
-            color: var(--primary); 
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-style: italic;
-        }
+        .firma-area { margin-top: 80px; float: right; text-align: center; }
+        .sello-texto { font-size: 1.4em; font-weight: 800; color: var(--primary); text-transform: uppercase; font-style: italic; }
 
         @media print {
             .no-print { display: none !important; }
-            body { background: white; padding: 0; }
             #recibo-final { border: none; box-shadow: none; width: 100%; padding: 10px; }
         }
     </style>
@@ -68,9 +75,11 @@
 </div>
 
 <div id="recibo-final">
+    <div id="sello-digital" class="sello-pagado">PAGADO</div>
+
     <div class="header">
         <img src="mhe.png" class="logo" alt="MHE SERVICES" onerror="this.style.display='none'">
-        <div style="text-align: right;">
+        <div style="text-align: right; position: relative;">
             <h1 style="margin:0; color: var(--primary); letter-spacing: 2px;">RECIBO</h1>
             <p id="out-fecha" style="color: #666; margin: 5px 0;"></p>
         </div>
@@ -79,7 +88,7 @@
     <div class="cuerpo">
         He recibido del Sr./Sra. <span class="linea-dato" id="out-cliente">____________________</span> 
         la suma de <strong>$<span id="out-monto">0.00</span></strong> en concepto de pago 
-        por los servicios realizados bajo el <strong>Presupuesto N° <span id="out-nro">____</span></strong>.
+        por los servicios del <strong>Presupuesto N° <span id="out-nro">____</span></strong>.
     </div>
 
     <table class="tabla-resumen">
@@ -99,12 +108,11 @@
 
     <div class="firma-area">
         <div class="sello-texto">MHE Full Services</div>
-        <p style="margin: 5px 0; color: #666; font-size: 0.9em;">Comprobante de Pago</p>
+        <p style="margin: 5px 0; color: #666; font-size: 0.9em;">Comprobante de Pago Digital</p>
     </div>
 </div>
 
 <script>
-    // Fecha automática
     document.getElementById('out-fecha').innerText = "Fecha: " + new Date().toLocaleDateString();
 
     function actualizar() {
@@ -113,6 +121,9 @@
         const total = parseFloat(document.getElementById('in-total').value) || 0;
         const pago = parseFloat(document.getElementById('in-pago').value) || 0;
         const saldo = total - pago;
+
+        // El sello aparece automáticamente cuando hay un pago
+        document.getElementById('sello-digital').style.display = (pago > 0) ? 'block' : 'none';
 
         document.getElementById('out-cliente').innerText = cliente || "____________________";
         document.getElementById('out-nro').innerText = nro || "____";
