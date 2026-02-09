@@ -25,22 +25,29 @@
         /* Estructura del Recibo */
         #recibo-final { 
             background: white; width: 100%; max-width: 750px; margin: auto; 
-            padding: 40px; border: 1px solid #eee; min-height: 500px;
+            padding: 50px; border: 1px solid #eee; min-height: 500px;
             position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05);
         }
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; }
         .logo { width: 200px; height: auto; }
         
-        .cuerpo { margin: 40px 0; font-size: 1.25em; line-height: 1.8; }
+        .cuerpo { margin: 50px 0; font-size: 1.3em; line-height: 1.8; }
         .linea-dato { font-weight: bold; border-bottom: 1px solid #000; padding: 0 5px; }
 
-        .tabla-resumen { width: 100%; border-collapse: collapse; margin-top: 30px; font-size: 1.1em; }
-        .tabla-resumen td { padding: 12px; border: 1px solid #f8f9fa; }
+        .tabla-resumen { width: 100%; border-collapse: collapse; margin-top: 30px; font-size: 1.2em; }
+        .tabla-resumen td { padding: 15px; border: 1px solid #f8f9fa; }
         .total-pendiente { background: #fff5f5; font-weight: bold; color: var(--danger); border: 1px solid #ffe3e3 !important; }
 
-        .firma-area { margin-top: 50px; float: right; text-align: center; width: 250px; }
-        .firma-img { width: 180px; height: auto; display: block; margin: 0 auto -10px; }
-        .sello { border-top: 1px solid #000; padding-top: 8px; font-weight: bold; color: var(--primary); }
+        /* Espacio de Firma Simplificado */
+        .firma-area { margin-top: 80px; float: right; text-align: center; width: 300px; }
+        .sello-texto { 
+            font-size: 1.4em; 
+            font-weight: 800; 
+            color: var(--primary); 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-style: italic;
+        }
 
         @media print {
             .no-print { display: none !important; }
@@ -54,7 +61,7 @@
 <div class="no-print">
     <h2>Datos del Recibo</h2>
     <input type="text" id="in-cliente" placeholder="Nombre del Cliente" oninput="actualizar()">
-    <input type="text" id="in-nro" placeholder="Presupuesto N° (ej: 0045)" oninput="actualizar()">
+    <input type="text" id="in-nro" placeholder="Presupuesto N°" oninput="actualizar()">
     <input type="number" id="in-total" placeholder="Monto Total Trabajo $" oninput="actualizar()">
     <input type="number" id="in-pago" placeholder="Monto que Recibes Hoy $" oninput="actualizar()">
     <button onclick="window.print()">GENERAR PDF / IMPRIMIR</button>
@@ -62,7 +69,7 @@
 
 <div id="recibo-final">
     <div class="header">
-        <img src="mhe.png" class="logo" alt="Logo MHE" onerror="this.src='https://via.placeholder.com/200x80?text=MHE+Full+Services'">
+        <img src="mhe.png" class="logo" alt="MHE SERVICES" onerror="this.style.display='none'">
         <div style="text-align: right;">
             <h1 style="margin:0; color: var(--primary); letter-spacing: 2px;">RECIBO</h1>
             <p id="out-fecha" style="color: #666; margin: 5px 0;"></p>
@@ -77,7 +84,7 @@
 
     <table class="tabla-resumen">
         <tr>
-            <td>Valor Total del Contrato:</td>
+            <td>Valor Total del Trabajo:</td>
             <td style="text-align: right;">$<span id="out-total">0.00</span></td>
         </tr>
         <tr>
@@ -85,19 +92,19 @@
             <td style="text-align: right; font-weight: bold;">$<span id="out-pago">0.00</span></td>
         </tr>
         <tr class="total-pendiente">
-            <td>SALDO RESTANTE PENDIENTE:</td>
+            <td>SALDO RESTANTE A ABONAR:</td>
             <td style="text-align: right;">$<span id="out-restante">0.00</span></td>
         </tr>
     </table>
 
     <div class="firma-area">
-        <img src="firma.png" class="firma-img" alt="Firma MHE" onerror="this.style.display='none'">
-        <div class="sello">MHE Full Services</div>
+        <div class="sello-texto">MHE Full Services</div>
+        <p style="margin: 5px 0; color: #666; font-size: 0.9em;">Comprobante de Pago</p>
     </div>
 </div>
 
 <script>
-    // Fecha automática al cargar
+    // Fecha automática
     document.getElementById('out-fecha').innerText = "Fecha: " + new Date().toLocaleDateString();
 
     function actualizar() {
