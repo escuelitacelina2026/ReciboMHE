@@ -3,62 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recibo Oficial - MHE Full Services</title>
+    <title>Generador de Recibos MHE</title>
     <style>
         :root { --primary: #2c3e50; --success: #27ae60; --danger: #d32f2f; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; display: flex; justify-content: center; }
         
+        /* FORMULARIO DE ENTRADA (Lo único que ves al principio) */
         .no-print { 
-            background: white; max-width: 600px; margin: 0 auto 20px; 
-            padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            background: white; width: 100%; max-width: 500px; 
+            padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
         }
-        input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .no-print h2 { margin-top: 0; color: var(--primary); text-align: center; border-bottom: 2px solid #f0f2f5; padding-bottom: 15px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        
         button { 
-            background: var(--success); color: white; border: none; padding: 15px; 
-            width: 100%; font-size: 16px; font-weight: bold; border-radius: 5px; 
-            cursor: pointer; width: 100%;
+            background: var(--success); color: white; border: none; padding: 18px; 
+            width: 100%; font-size: 18px; font-weight: bold; border-radius: 8px; 
+            cursor: pointer; transition: 0.3s; margin-top: 10px; box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
         }
+        button:hover { background: #219150; transform: translateY(-2px); }
 
-        #recibo-final { 
-            background: white; width: 100%; max-width: 750px; margin: auto; 
-            padding: 50px; border: 1px solid #eee; min-height: 500px;
-            position: relative;
-        }
-        
-        /* SELLO "PAGADO" - DISEÑO MEJORADO */
-        .sello-pagado {
-            position: absolute;
-            top: 35px; 
-            right: 40px;
-            color: rgba(211, 47, 47, 0.7); /* Rojo con transparencia tipo tinta */
-            border: 5px solid rgba(211, 47, 47, 0.7);
-            font-size: 32px;
-            font-weight: 900;
-            padding: 5px 20px;
-            text-transform: uppercase;
-            transform: rotate(-12deg);
-            border-radius: 8px;
-            font-family: 'Arial Black', sans-serif;
-            z-index: 999;
-            pointer-events: none; /* No molesta al hacer clic */
-        }
+        /* EL RECIBO ESTÁ OCULTO EN LA PANTALLA */
+        #recibo-final { display: none; }
 
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; }
-        .logo { width: 200px; }
-        
-        .cuerpo { margin: 50px 0; font-size: 1.3em; line-height: 1.8; }
-        .linea-dato { font-weight: bold; border-bottom: 1px solid #000; }
-
-        .tabla-resumen { width: 100%; border-collapse: collapse; margin-top: 30px; font-size: 1.2em; }
-        .tabla-resumen td { padding: 15px; border: 1px solid #f8f9fa; }
-        .total-pendiente { background: #fff5f5; font-weight: bold; color: var(--danger); }
-
-        .firma-area { margin-top: 80px; float: right; text-align: center; }
-        .sello-texto { font-size: 1.4em; font-weight: 800; color: var(--primary); text-transform: uppercase; font-style: italic; }
-
+        /* CONFIGURACIÓN PARA EL PDF / IMPRESIÓN */
         @media print {
-            .no-print { display: none !important; }
-            #recibo-final { border: none; box-shadow: none; width: 100%; padding: 10px; }
+            .no-print { display: none !important; } /* Esconde el formulario */
+            #recibo-final { 
+                display: block !important; /* Muestra el recibo solo en el PDF */
+                background: white; width: 100%; padding: 40px; position: relative;
+            }
+            body { background: white; padding: 0; }
+            
+            .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+            .logo { width: 180px; }
+            .sello-pagado {
+                position: absolute; top: 30px; right: 50px; color: rgba(211, 47, 47, 0.7);
+                border: 5px solid rgba(211, 47, 47, 0.7); font-size: 30px; font-weight: 900;
+                padding: 5px 20px; text-transform: uppercase; transform: rotate(-12deg);
+                border-radius: 8px; font-family: 'Arial Black', sans-serif;
+            }
+            .cuerpo { margin: 50px 0; font-size: 1.3em; line-height: 1.8; }
+            .linea-dato { font-weight: bold; border-bottom: 1px solid #000; }
+            .tabla-resumen { width: 100%; border-collapse: collapse; margin-top: 30px; font-size: 1.2em; }
+            .tabla-resumen td { padding: 15px; border: 1px solid #f8f9fa; }
+            .total-pendiente { background: #fff5f5 !important; font-weight: bold; color: var(--danger); -webkit-print-color-adjust: exact; }
+            .firma-area { margin-top: 80px; float: right; text-align: center; }
+            .sello-texto { font-size: 1.4em; font-weight: 800; color: var(--primary); text-transform: uppercase; font-style: italic; }
         }
     </style>
 </head>
@@ -66,16 +59,27 @@
 
 <div class="no-print">
     <h2>Datos del Recibo</h2>
-    <input type="text" id="in-cliente" placeholder="Nombre del Cliente" oninput="actualizar()">
-    <input type="text" id="in-nro" placeholder="Presupuesto N°" oninput="actualizar()">
-    <input type="number" id="in-total" placeholder="Monto Total Trabajo $" oninput="actualizar()">
-    <input type="number" id="in-pago" placeholder="Monto que Recibes Hoy $" oninput="actualizar()">
-    <button onclick="window.print()">GENERAR PDF / IMPRIMIR</button>
+    <div class="form-group">
+        <label>Nombre del Cliente</label>
+        <input type="text" id="in-cliente" placeholder="Ej: Juan Pérez">
+    </div>
+    <div class="form-group">
+        <label>Presupuesto N°</label>
+        <input type="text" id="in-nro" placeholder="Ej: 0045">
+    </div>
+    <div class="form-group">
+        <label>Valor Total del Trabajo ($)</label>
+        <input type="number" id="in-total" placeholder="0.00">
+    </div>
+    <div class="form-group">
+        <label>Monto que Recibes Hoy ($)</label>
+        <input type="number" id="in-pago" placeholder="0.00">
+    </div>
+    <button onclick="generarYImprimir()">GENERAR PDF / IMPRIMIR</button>
 </div>
 
 <div id="recibo-final">
     <div class="sello-pagado">PAGADO</div>
-
     <div class="header">
         <img src="mhe.png" class="logo" alt="MHE SERVICES" onerror="this.style.display='none'">
         <div style="text-align: right;">
@@ -83,50 +87,48 @@
             <p id="out-fecha" style="color: #666; margin: 5px 0;"></p>
         </div>
     </div>
-
     <div class="cuerpo">
-        He recibido del Sr./Sra. <span class="linea-dato" id="out-cliente">____________________</span> 
-        la suma de <strong>$<span id="out-monto">0.00</span></strong> en concepto de pago 
-        por los servicios del <strong>Presupuesto N° <span id="out-nro">____</span></strong>.
+        He recibido del Sr./Sra. <span class="linea-dato" id="out-cliente"></span> 
+        la suma de <strong>$<span id="out-monto"></span></strong> en concepto de pago 
+        por los servicios del <strong>Presupuesto N° <span id="out-nro"></span></strong>.
     </div>
-
     <table class="tabla-resumen">
-        <tr>
-            <td>Valor Total del Trabajo:</td>
-            <td style="text-align: right;">$<span id="out-total">0.00</span></td>
-        </tr>
-        <tr>
-            <td style="color: var(--success); font-weight: bold;">Monto entregado hoy:</td>
-            <td style="text-align: right; font-weight: bold;">$<span id="out-pago">0.00</span></td>
-        </tr>
-        <tr class="total-pendiente">
-            <td>SALDO RESTANTE A ABONAR:</td>
-            <td style="text-align: right;">$<span id="out-restante">0.00</span></td>
-        </tr>
+        <tr><td>Valor Total del Trabajo:</td><td style="text-align: right;">$<span id="out-total"></span></td></tr>
+        <tr><td style="color: var(--success); font-weight: bold;">Monto entregado hoy:</td><td style="text-align: right; font-weight: bold;">$<span id="out-pago"></span></td></tr>
+        <tr class="total-pendiente"><td>SALDO RESTANTE A ABONAR:</td><td style="text-align: right;">$<span id="out-restante"></span></td></tr>
     </table>
-
     <div class="firma-area">
         <div class="sello-texto">MHE Full Services</div>
-        <p style="margin: 5px 0; color: #666; font-size: 0.9em;">Comprobante Digital</p>
+        <p style="margin: 5px 0; color: #666; font-size: 0.9em;">Comprobante de Pago Digital</p>
     </div>
 </div>
 
 <script>
-    document.getElementById('out-fecha').innerText = "Fecha: " + new Date().toLocaleDateString();
-
-    function actualizar() {
+    function generarYImprimir() {
+        // Tomar datos del formulario
         const cliente = document.getElementById('in-cliente').value;
         const nro = document.getElementById('in-nro').value;
         const total = parseFloat(document.getElementById('in-total').value) || 0;
         const pago = parseFloat(document.getElementById('in-pago').value) || 0;
         const saldo = total - pago;
 
-        document.getElementById('out-cliente').innerText = cliente || "____________________";
-        document.getElementById('out-nro').innerText = nro || "____";
+        // Validar que haya datos
+        if(!cliente || !nro) {
+            alert("Por favor completa el nombre y el N° de presupuesto");
+            return;
+        }
+
+        // Llenar el recibo oculto
+        document.getElementById('out-fecha').innerText = "Fecha: " + new Date().toLocaleDateString();
+        document.getElementById('out-cliente').innerText = cliente;
+        document.getElementById('out-nro').innerText = nro;
         document.getElementById('out-monto').innerText = pago.toLocaleString('es-AR');
         document.getElementById('out-total').innerText = total.toLocaleString('es-AR');
         document.getElementById('out-pago').innerText = pago.toLocaleString('es-AR');
         document.getElementById('out-restante').innerText = saldo.toLocaleString('es-AR');
+
+        // Disparar la impresión (el CSS hará el resto)
+        window.print();
     }
 </script>
 
